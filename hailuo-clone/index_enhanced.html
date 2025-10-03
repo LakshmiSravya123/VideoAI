@@ -14,8 +14,15 @@
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-attachment: fixed;
             min-height: 100vh;
             padding: 20px;
+            animation: gradientShift 15s ease infinite;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+            50% { background: linear-gradient(135deg, #764ba2 0%, #667eea 100%); }
         }
 
         .container {
@@ -30,18 +37,41 @@
         .header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 30px 40px;
+            padding: 40px 40px;
             text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: headerPulse 10s ease-in-out infinite;
+        }
+
+        @keyframes headerPulse {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(10%, 10%); }
         }
 
         .header h1 {
-            font-size: 32px;
+            font-size: 36px;
             margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
         }
 
         .header p {
-            font-size: 16px;
-            opacity: 0.9;
+            font-size: 18px;
+            opacity: 0.95;
+            position: relative;
+            z-index: 1;
         }
 
         .main-content {
@@ -128,12 +158,36 @@
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        button:hover::before {
+            width: 300px;
+            height: 300px;
         }
 
         button:hover:not(:disabled) {
             transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
+        }
+
+        button:active:not(:disabled) {
+            transform: translateY(0);
         }
 
         button:disabled {
@@ -272,20 +326,27 @@
 
         .example-prompt {
             display: inline-block;
-            padding: 6px 12px;
-            margin: 4px;
-            background: white;
-            border: 1px solid #ddd;
-            border-radius: 20px;
-            font-size: 12px;
+            padding: 8px 16px;
+            margin: 6px 4px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border: 2px solid transparent;
+            border-radius: 25px;
+            font-size: 13px;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
 
         .example-prompt:hover {
-            background: #667eea;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .example-prompt:active {
+            transform: translateY(0);
         }
 
         .image-upload-area {
@@ -496,7 +557,56 @@
                 updateModelInfo();
             } catch (error) {
                 console.error('Failed to load models data:', error);
+                // Use fallback data if backend is not available
+                useFallbackData();
             }
+        }
+
+        function useFallbackData() {
+            // Fallback example prompts
+            const fallbackPrompts = {
+                "Nature": [
+                    "A majestic waterfall cascading down mossy rocks in a lush rainforest",
+                    "Ocean waves crashing on a rocky shore at sunset with seagulls flying",
+                    "A field of sunflowers swaying in the breeze under a blue sky"
+                ],
+                "Animals": [
+                    "A golden retriever running through a field of flowers at sunset",
+                    "A majestic eagle soaring through clouds above mountain peaks",
+                    "A playful dolphin jumping out of crystal clear ocean water"
+                ],
+                "Urban": [
+                    "City street with cars and pedestrians at night, neon lights reflecting on wet pavement",
+                    "Time-lapse of clouds moving over modern skyscrapers in downtown",
+                    "A busy coffee shop with people working on laptops, warm lighting"
+                ],
+                "Fantasy": [
+                    "A magical portal opening in an ancient forest with glowing particles",
+                    "A dragon flying over a medieval castle at dawn",
+                    "Floating islands in the sky connected by glowing bridges"
+                ]
+            };
+            
+            const container = document.getElementById('example-prompts');
+            Object.entries(fallbackPrompts).forEach(([category, prompts]) => {
+                const categoryDiv = document.createElement('div');
+                categoryDiv.className = 'prompt-category';
+                
+                const title = document.createElement('h4');
+                title.textContent = category;
+                categoryDiv.appendChild(title);
+                
+                prompts.forEach(prompt => {
+                    const span = document.createElement('span');
+                    span.className = 'example-prompt';
+                    span.textContent = prompt.substring(0, 50) + (prompt.length > 50 ? '...' : '');
+                    span.title = prompt;
+                    span.onclick = () => setPrompt(prompt);
+                    categoryDiv.appendChild(span);
+                });
+                
+                container.appendChild(categoryDiv);
+            });
         }
 
         function populateCameraMovements() {
