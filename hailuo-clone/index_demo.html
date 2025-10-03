@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Video Generator Pro - Demo Mode</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .demo-notice {
+            background: #fff3cd;
+            color: #856404;
+            padding: 15px;
+            text-align: center;
+            border-bottom: 2px solid #ffc107;
+            font-weight: 500;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 40px;
+        }
+
+        .section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+        }
+
+        .section h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        label {
+            display: block;
+            color: #555;
+            margin-bottom: 8px;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        textarea, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        textarea:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        button {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 20px;
+        }
+
+        button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .loader {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+            display: none;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .status {
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 14px;
+            display: none;
+            margin-top: 15px;
+        }
+
+        .status.info {
+            background: #e3f2fd;
+            color: #1976d2;
+            display: block;
+        }
+
+        .status.success {
+            background: #e8f5e9;
+            color: #388e3c;
+            display: block;
+        }
+
+        .status.error {
+            background: #ffebee;
+            color: #d32f2f;
+            display: block;
+        }
+
+        .video-container {
+            background: #000;
+            border-radius: 12px;
+            overflow: hidden;
+            display: none;
+            margin-top: 15px;
+        }
+
+        video {
+            width: 100%;
+            display: block;
+        }
+
+        .video-info {
+            background: #f8f9fa;
+            padding: 15px;
+            margin-top: 10px;
+            border-radius: 8px;
+            font-size: 13px;
+            color: #666;
+        }
+
+        .example-prompts {
+            margin-top: 15px;
+        }
+
+        .example-prompt {
+            display: inline-block;
+            padding: 8px 16px;
+            margin: 4px;
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 20px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #667eea;
+            font-weight: 500;
+        }
+
+        .example-prompt:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .features-list {
+            list-style: none;
+            margin-top: 15px;
+        }
+
+        .features-list li {
+            padding: 8px 0;
+            color: #555;
+        }
+
+        .features-list li:before {
+            content: "✓ ";
+            color: #667eea;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            .options-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎬 AI Video Generator Pro</h1>
+            <p>Hailuo-Inspired Features with Multiple AI Models</p>
+        </div>
+
+        <div class="demo-notice">
+            ⚠️ DEMO MODE: This demo uses a sample video to showcase the UI. Real video generation requires Hugging Face Space connections.
+        </div>
+
+        <div class="main-content">
+            <!-- Left Panel -->
+            <div>
+                <div class="section">
+                    <h3>📝 Enter Your Prompt</h3>
+                    <label for="prompt">Describe the video you want to create:</label>
+                    <textarea 
+                        id="prompt" 
+                        rows="4"
+                        placeholder="e.g., A golden retriever running through a field of sunflowers at sunset"
+                    >A golden retriever running through a field of flowers</textarea>
+                </div>
+
+                <div class="section">
+                    <h3>🎥 Advanced Options (Hailuo-Inspired)</h3>
+                    <div class="options-grid">
+                        <div>
+                            <label for="camera">Camera Movement:</label>
+                            <select id="camera">
+                                <option value="">Static</option>
+                                <option value="[Zoom in]">Zoom In</option>
+                                <option value="[Zoom out]">Zoom Out</option>
+                                <option value="[Pan left]">Pan Left</option>
+                                <option value="[Pan right]">Pan Right</option>
+                                <option value="[Tracking shot]" selected>Tracking Shot</option>
+                                <option value="[Dolly in]">Dolly In</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="effect">Visual Effect:</label>
+                            <select id="effect">
+                                <option value="">None</option>
+                                <option value="cinematic lighting, film grain" selected>Cinematic</option>
+                                <option value="dramatic lighting, high contrast">Dramatic</option>
+                                <option value="golden hour, warm sunset lighting">Golden Hour</option>
+                                <option value="fog, misty atmosphere">Foggy</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div style="margin-top: 15px;">
+                        <label for="style">Video Style:</label>
+                        <select id="style">
+                            <option value="">Default</option>
+                            <option value="photorealistic, 4k, high detail" selected>Realistic</option>
+                            <option value="anime style, animated">Anime</option>
+                            <option value="3D render, CGI, Pixar style">3D Render</option>
+                            <option value="cinematic, movie scene">Cinematic</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button onclick="generateVideo()">🎬 Generate Video (Demo)</button>
+            </div>
+
+            <!-- Right Panel -->
+            <div>
+                <div class="section">
+                    <h3>🎞️ Generated Video</h3>
+                    <div class="loader" id="loader"></div>
+                    <div class="status" id="status"></div>
+                    
+                    <div class="video-container" id="video-container">
+                        <video id="video-output" controls></video>
+                    </div>
+
+                    <div id="video-info" class="video-info" style="display: none;"></div>
+                </div>
+
+                <div class="section">
+                    <h3>💡 Example Prompts</h3>
+                    <div class="example-prompts">
+                        <span class="example-prompt" onclick="setPrompt('A golden retriever running through a field of flowers')">🐕 Dog in field</span>
+                        <span class="example-prompt" onclick="setPrompt('Ocean waves crashing on a beach at sunset')">🌊 Ocean sunset</span>
+                        <span class="example-prompt" onclick="setPrompt('A sports car drifting around a corner')">🏎️ Racing car</span>
+                        <span class="example-prompt" onclick="setPrompt('A dragon flying over a medieval castle')">🐉 Fantasy dragon</span>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3>✨ Features</h3>
+                    <ul class="features-list">
+                        <li>5 AI Models (CogVideoX, LTX, SVD, AnimateDiff, Zeroscope)</li>
+                        <li>Text-to-Video & Image-to-Video</li>
+                        <li>12 Camera Movements (Hailuo-style)</li>
+                        <li>8 Visual Effects</li>
+                        <li>8 Video Styles</li>
+                        <li>Enhanced Prompt Building</li>
+                        <li>Professional UI Design</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentVideoUrl = null;
+
+        function setPrompt(text) {
+            document.getElementById('prompt').value = text;
+        }
+
+        function showStatus(message, type) {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = 'status ' + type;
+        }
+
+        async function generateVideo() {
+            const prompt = document.getElementById('prompt').value.trim();
+            const camera = document.getElementById('camera').value;
+            const effect = document.getElementById('effect').value;
+            const style = document.getElementById('style').value;
+
+            if (!prompt) {
+                showStatus('Please enter a prompt', 'error');
+                return;
+            }
+
+            // Build enhanced prompt
+            let enhancedPrompt = prompt;
+            if (style) enhancedPrompt = style + ', ' + enhancedPrompt;
+            if (camera) enhancedPrompt += ' ' + camera;
+            if (effect) enhancedPrompt += ', ' + effect;
+
+            // UI updates
+            const btn = document.querySelector('button');
+            btn.disabled = true;
+            btn.textContent = '🎬 Generating...';
+            document.getElementById('loader').style.display = 'block';
+            document.getElementById('video-container').style.display = 'none';
+            document.getElementById('video-info').style.display = 'none';
+            showStatus('🎨 Generating your video... (Demo mode - instant)', 'info');
+
+            try {
+                // Simulate API delay
+                await new Promise(resolve => setTimeout(resolve, 2000));
+
+                const response = await fetch('http://localhost:5000/test-video', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompt: enhancedPrompt })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok || data.error) {
+                    throw new Error(data.error || 'Failed to generate video');
+                }
+
+                // Success
+                currentVideoUrl = data.video_url;
+                const videoOutput = document.getElementById('video-output');
+                videoOutput.src = currentVideoUrl;
+                document.getElementById('video-container').style.display = 'block';
+                
+                // Show video info
+                const videoInfo = document.getElementById('video-info');
+                videoInfo.innerHTML = `
+                    <strong>Mode:</strong> ${data.model_name}<br>
+                    <strong>Your Prompt:</strong> ${prompt}<br>
+                    <strong>Enhanced Prompt:</strong> ${data.enhanced_prompt}<br>
+                    <strong>Note:</strong> ${data.note}
+                `;
+                videoInfo.style.display = 'block';
+                
+                showStatus('✅ Demo video loaded! This showcases the UI. Connect to HF Spaces for real generation.', 'success');
+                videoOutput.play().catch(() => {});
+
+            } catch (error) {
+                console.error('Error:', error);
+                showStatus('❌ Error: ' + error.message, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '🎬 Generate Video (Demo)';
+                document.getElementById('loader').style.display = 'none';
+            }
+        }
+
+        // Check server health on load
+        window.addEventListener('load', async () => {
+            try {
+                const response = await fetch('http://localhost:5000/health');
+                const data = await response.json();
+                if (data.status === 'healthy') {
+                    console.log('✅ Server is healthy');
+                    showStatus('✅ Server connected! Try the demo by clicking Generate Video', 'success');
+                }
+            } catch (error) {
+                showStatus('⚠️ Cannot connect to server. Make sure backend is running on port 5000', 'error');
+            }
+        });
+    </script>
+</body>
+</html>
