@@ -1,0 +1,10 @@
+{
+  "name": "ai-video-vercel",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "dependencies": {
+    "replicate": "^1.0.7"
+  }
+}

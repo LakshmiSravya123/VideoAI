@@ -547,7 +547,7 @@
 
         async function loadModelsData() {
             try {
-                const response = await fetch('http://localhost:5000/models');
+                const response = await fetch('/api/models');
                 modelsData = await response.json();
                 
                 populateCameraMovements();
@@ -750,12 +750,13 @@
             showStatus('🎨 Creating your video... This may take 30-120 seconds depending on the model', 'info');
 
             try {
-                const response = await fetch('http://localhost:5000/generate-video', {
+                const response = await fetch('/api/generate-video', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         prompt,
-                        model,
+                        // Map enhanced UI model ids to Replicate API models
+                        model: model === 'cogvideox-5b' || model === 'cogvideox-2b' ? 'cogvideox' : (model === 'demo' ? 'demo' : 'hailuo'),
                         camera_movement: cameraMovement,
                         visual_effect: visualEffect,
                         style: style
@@ -799,66 +800,8 @@
         }
 
         async function generateImageToVideo() {
-            if (!uploadedImage) {
-                showStatus('Please upload an image first', 'error');
-                return;
-            }
-
-            const prompt = document.getElementById('image-prompt').value.trim();
-            const model = document.getElementById('model-select').value;
-
-            // UI updates
-            const generateBtn = document.querySelector('.generate-btn');
-            generateBtn.disabled = true;
-            generateBtn.textContent = '🎬 Animating...';
-            document.getElementById('loader').style.display = 'block';
-            document.getElementById('video-container').style.display = 'none';
-            document.getElementById('video-actions').style.display = 'none';
-            showStatus('🎨 Animating your image... This may take 30-90 seconds', 'info');
-
-            try {
-                const response = await fetch('http://localhost:5000/generate-video-from-image', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        image: uploadedImage,
-                        prompt: prompt,
-                        model: model
-                    })
-                });
-
-                const data = await response.json();
-
-                if (!response.ok || data.error) {
-                    throw new Error(data.error || 'Failed to generate video');
-                }
-
-                // Success
-                currentVideoUrl = data.video_url;
-                const videoOutput = document.getElementById('video-output');
-                videoOutput.src = currentVideoUrl;
-                document.getElementById('video-container').style.display = 'block';
-                document.getElementById('video-actions').style.display = 'flex';
-                
-                const videoInfo = document.getElementById('video-info');
-                videoInfo.innerHTML = `
-                    <strong>Model:</strong> ${data.model_name}<br>
-                    <strong>Type:</strong> Image-to-Video<br>
-                    <strong>Generated:</strong> ${new Date(data.timestamp).toLocaleString()}
-                `;
-                videoInfo.style.display = 'block';
-                
-                showStatus('✅ Video generated from image successfully!', 'success');
-                videoOutput.play().catch(() => {});
-
-            } catch (error) {
-                console.error('Error:', error);
-                showStatus('❌ Error: ' + error.message, 'error');
-            } finally {
-                generateBtn.disabled = false;
-                generateBtn.textContent = '🎬 Generate Video';
-                document.getElementById('loader').style.display = 'none';
-            }
+            // Image-to-video not supported in the Vercel serverless API yet
+            showStatus('⚠️ Image-to-Video is not available in this hosted version. Use Local mode for this feature.', 'error');
         }
 
         async function downloadVideo() {
@@ -904,14 +847,13 @@
 
         async function checkServerHealth() {
             try {
-                const response = await fetch('http://localhost:5000/health');
+                const response = await fetch('/api/health');
                 const data = await response.json();
                 if (data.status === 'healthy') {
-                    console.log('✅ Server is healthy');
-                    console.log('Available models:', data.available_models);
+                    console.log('✅ API is healthy');
                 }
             } catch (error) {
-                showStatus('⚠️ Cannot connect to server. Make sure backend is running on port 5000', 'error');
+                showStatus('⚠️ Cannot connect to API. If deploying on Vercel, ensure functions are enabled.', 'error');
             }
         }
     </script>

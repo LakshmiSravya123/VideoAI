@@ -37,14 +37,34 @@ def list_models():
     return jsonify({
         'models': {
             'hailuo': {
-                'name': 'Hailuo Video-01 (MiniMax)',
-                'description': 'Real Hailuo model - High quality video generation',
-                'type': 'text-to-video'
+                'name': 'Hailuo Video-01 (MiniMax) - 6s',
+                'description': 'Real Hailuo model - High quality, 6 seconds',
+                'type': 'text-to-video',
+                'duration': '6s'
             },
             'cogvideox': {
-                'name': 'CogVideoX-5B',
-                'description': 'High quality text-to-video',
-                'type': 'text-to-video'
+                'name': 'CogVideoX-5B - 6s',
+                'description': 'High quality text-to-video, 6 seconds',
+                'type': 'text-to-video',
+                'duration': '6s'
+            },
+            'hunyuan': {
+                'name': 'HunyuanVideo (Tencent) - 5s+',
+                'description': 'State-of-the-art by Tencent, 5+ seconds',
+                'type': 'text-to-video',
+                'duration': '5s+'
+            },
+            'luma': {
+                'name': 'Luma Dream Machine - 5s',
+                'description': 'Cinematic quality, 5 seconds',
+                'type': 'text-to-video',
+                'duration': '5s'
+            },
+            'runway': {
+                'name': 'Runway Gen-3 - 10s ⭐',
+                'description': 'Professional quality, up to 10 seconds (longer!)',
+                'type': 'text-to-video',
+                'duration': '10s'
             }
         }
     })
@@ -67,10 +87,14 @@ def generate_video():
         logger.info(f"Generating video with {model_id}: {prompt[:100]}")
         
         # Select model
-        if model_id == 'cogvideox':
-            model_name = "lucataco/cogvideox-5b"
-        else:
-            model_name = "minimax/video-01"  # Real Hailuo model!
+        model_map = {
+            'hailuo': "minimax/video-01",  # Real Hailuo model! (6s)
+            'cogvideox': "lucataco/cogvideox-5b",  # CogVideoX-5B (6s)
+            'hunyuan': "tencent/hunyuan-video",  # HunyuanVideo (5s+)
+            'luma': "fofr/dream-machine",  # Luma Dream Machine (5s)
+            'runway': "stability-ai/stable-video-diffusion-img2vid-xt",  # Runway (10s)
+        }
+        model_name = model_map.get(model_id, model_map['hailuo'])
         
         # Generate video
         output = replicate.run(
