@@ -41,7 +41,7 @@ CORS(app)
 # Configuration
 FLASK_PORT = int(os.getenv('FLASK_PORT', 5000))
 FLASK_DEBUG = os.getenv('FLASK_DEBUG', 'False').lower() == 'true'
-DEFAULT_MODEL = os.getenv('DEFAULT_MODEL', 'zeroscope')
+DEFAULT_MODEL = os.getenv('DEFAULT_MODEL', 'cogvideox-5b')
 
 # Constants
 MAX_PROMPT_LENGTH = 1000

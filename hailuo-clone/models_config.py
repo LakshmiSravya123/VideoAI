@@ -70,20 +70,6 @@ VIDEO_MODELS = {
         "resolution": (1920, 1080),
         "api_name": "/test",
         "params": {}
-    },
-    "animatediff": {
-        "name": "AnimateDiff",
-        "space_url": "guoyww/animatediff",
-        "description": "Animate images with motion modules",
-        "type": "image-to-video",
-        "features": ["animation", "motion_control"],
-        "max_frames": 16,
-        "resolution": (512, 512),
-        "api_name": "/create_video",
-        "params": {
-            "num_frames": 16,
-            "fps": 8,
-        }
     }
 }
 
