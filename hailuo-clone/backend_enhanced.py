@@ -202,26 +202,23 @@ def generate_video():
         
         # Generate video based on model type
         try:
-            if model_id == 'zeroscope':
-                result = client.predict(
-                    enhanced_prompt,
-                    model_info['params']['num_frames'],
-                    model_info['params']['width'],
-                    model_info['params']['height'],
-                    api_name=model_info['api_name']
-                )
-            elif model_id == 'cogvideox-5b':
+            if model_id in ['cogvideox-5b', 'cogvideox-2b']:
+                # CogVideoX models - simple prompt input
+                logger.info(f"Calling CogVideoX with prompt: {enhanced_prompt[:100]}")
                 result = client.predict(
                     enhanced_prompt,
                     api_name=model_info['api_name']
                 )
-            elif model_id == 'ltx-video':
+            elif model_id == 'hunyuan-video':
+                # HunyuanVideo model
+                logger.info(f"Calling HunyuanVideo with prompt: {enhanced_prompt[:100]}")
                 result = client.predict(
                     enhanced_prompt,
                     api_name=model_info['api_name']
                 )
             else:
-                # Generic approach
+                # Generic approach for other models
+                logger.info(f"Calling {model_id} with generic approach")
                 result = client.predict(
                     enhanced_prompt,
                     api_name=model_info['api_name']

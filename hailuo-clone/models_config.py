@@ -5,31 +5,44 @@ Based on trending Hugging Face spaces and Hailuo-inspired features
 
 VIDEO_MODELS = {
     "cogvideox-5b": {
-        "name": "CogVideoX-5B",
-        "space_url": "THUDM/CogVideoX-5B-Space",
-        "description": "High-quality text-to-video generation (6 seconds, 720p)",
+        "name": "CogVideoX-5B (zai-org)",
+        "space_url": "zai-org/CogVideoX-5B-Space",
+        "description": "High-quality text-to-video generation (6 seconds, 720p) - Running on Zero GPU",
         "type": "text-to-video",
         "features": ["high_quality", "longer_videos"],
         "max_frames": 49,
         "resolution": (720, 480),
-        "api_name": "/infer",
+        "api_name": "/generate",
         "params": {
             "num_inference_steps": 50,
             "guidance_scale": 6.0,
         }
     },
-    "ltx-video": {
-        "name": "LTX Video (Lightricks)",
-        "space_url": "Lightricks/LTX-Video",
-        "description": "Fast, efficient video generation with great quality",
+    "cogvideox-2b": {
+        "name": "CogVideoX-2B (Faster)",
+        "space_url": "THUDM/CogVideoX-2B",
+        "description": "Faster version of CogVideoX with good quality",
         "type": "text-to-video",
-        "features": ["fast", "efficient"],
-        "max_frames": 161,
-        "resolution": (704, 480),
+        "features": ["fast", "good_quality"],
+        "max_frames": 49,
+        "resolution": (720, 480),
         "api_name": "/generate",
         "params": {
             "num_inference_steps": 30,
-            "guidance_scale": 3.0,
+            "guidance_scale": 6.0,
+        }
+    },
+    "hunyuan-video": {
+        "name": "HunyuanVideo (Tencent)",
+        "space_url": "tencent/HunyuanVideo",
+        "description": "State-of-the-art video generation by Tencent",
+        "type": "text-to-video",
+        "features": ["sota", "high_quality"],
+        "max_frames": 129,
+        "resolution": (1280, 720),
+        "api_name": "/generate",
+        "params": {
+            "num_inference_steps": 50,
         }
     },
     "stable-video-diffusion": {
@@ -40,26 +53,11 @@ VIDEO_MODELS = {
         "features": ["image_animation", "stable"],
         "max_frames": 25,
         "resolution": (576, 576),
-        "api_name": "/video",
+        "api_name": "/generate_video",
         "params": {
             "num_frames": 14,
             "fps": 7,
             "motion_bucket_id": 127,
-        }
-    },
-    "zeroscope": {
-        "name": "Zeroscope V2 XL",
-        "space_url": "cerspense/zeroscope_v2_XL",
-        "description": "Original model - fast and reliable",
-        "type": "text-to-video",
-        "features": ["fast", "reliable"],
-        "max_frames": 8,
-        "resolution": (512, 320),
-        "api_name": "/predict",
-        "params": {
-            "num_frames": 8,
-            "width": 512,
-            "height": 320,
         }
     },
     "demo": {
