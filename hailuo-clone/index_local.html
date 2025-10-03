@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Local AI Video Generator - CogVideoX</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .system-info {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-size: 13px;
+        }
+
+        .main-content {
+            padding: 40px;
+        }
+
+        .section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .section h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        label {
+            display: block;
+            color: #555;
+            margin-bottom: 8px;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color 0.3s;
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .char-counter {
+            text-align: right;
+            font-size: 12px;
+            color: #999;
+            margin-top: 5px;
+        }
+
+        button {
+            padding: 14px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .generate-btn {
+            width: 100%;
+            padding: 16px;
+            font-size: 18px;
+        }
+
+        .loader {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+            display: none;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .status {
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 14px;
+            display: none;
+            margin-top: 15px;
+        }
+
+        .status.info {
+            background: #e3f2fd;
+            color: #1976d2;
+            display: block;
+        }
+
+        .status.success {
+            background: #e8f5e9;
+            color: #388e3c;
+            display: block;
+        }
+
+        .status.error {
+            background: #ffebee;
+            color: #d32f2f;
+            display: block;
+        }
+
+        .status.warning {
+            background: #fff3e0;
+            color: #f57c00;
+            display: block;
+        }
+
+        .video-container {
+            background: #000;
+            border-radius: 12px;
+            overflow: hidden;
+            display: none;
+            margin-top: 20px;
+        }
+
+        video {
+            width: 100%;
+            display: block;
+        }
+
+        .video-info {
+            background: #f8f9fa;
+            padding: 15px;
+            margin-top: 10px;
+            border-radius: 8px;
+            font-size: 13px;
+            color: #666;
+        }
+
+        .video-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .video-actions button {
+            flex: 1;
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        }
+
+        .example-prompts {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .example-prompt {
+            display: inline-block;
+            padding: 6px 12px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .example-prompt:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .init-section {
+            background: #fff3e0;
+            border: 2px solid #f57c00;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .init-section h3 {
+            color: #f57c00;
+            margin-bottom: 10px;
+        }
+
+        .init-btn {
+            background: linear-gradient(135deg, #f57c00 0%, #ff9800 100%);
+            margin-top: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎬 Local AI Video Generator</h1>
+            <p>Generate videos locally using CogVideoX-2B on your computer</p>
+            <div class="system-info" id="system-info">
+                <div>🔄 Checking system status...</div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <!-- Model Initialization Section -->
+            <div class="init-section" id="init-section" style="display: none;">
+                <h3>⚙️ Model Not Loaded</h3>
+                <p style="font-size: 14px; color: #666; margin-bottom: 10px;">
+                    The AI model needs to be loaded before generating videos. This is a one-time process that will:
+                </p>
+                <ul style="font-size: 13px; color: #666; margin-left: 20px; margin-bottom: 10px;">
+                    <li>Download CogVideoX-2B model (~5GB) on first run</li>
+                    <li>Load the model into memory (2-5 minutes)</li>
+                    <li>Keep the model ready for fast generation</li>
+                </ul>
+                <button class="init-btn" onclick="initializeModel()">
+                    🚀 Initialize Model
+                </button>
+            </div>
+
+            <!-- Prompt Input Section -->
+            <div class="section">
+                <h3>📝 Enter Your Prompt</h3>
+                <label for="prompt">Describe the video you want to create:</label>
+                <textarea 
+                    id="prompt" 
+                    rows="4"
+                    placeholder="Example: A golden retriever running through a field of flowers at sunset, cinematic lighting"
+                    maxlength="1000"
+                ></textarea>
+                <div class="char-counter">
+                    <span id="char-count">0</span>/1000 characters
+                </div>
+
+                <div style="margin-top: 15px;">
+                    <label>💡 Example Prompts:</label>
+                    <div class="example-prompts">
+                        <span class="example-prompt" onclick="setPrompt('A cat playing with a ball of yarn, close-up shot')">🐱 Cat playing</span>
+                        <span class="example-prompt" onclick="setPrompt('Ocean waves crashing on a beach at sunset, aerial view')">🌊 Ocean waves</span>
+                        <span class="example-prompt" onclick="setPrompt('A bird flying through clouds, slow motion')">🦅 Bird flying</span>
+                        <span class="example-prompt" onclick="setPrompt('City street with cars at night, neon lights')">🌃 City night</span>
+                        <span class="example-prompt" onclick="setPrompt('Flowers blooming in a garden, time-lapse')">🌸 Flowers blooming</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Generate Button -->
+            <button class="generate-btn" id="generate-btn" onclick="generateVideo()">
+                🎬 Generate Video
+            </button>
+
+            <!-- Status and Loader -->
+            <div class="loader" id="loader"></div>
+            <div class="status" id="status"></div>
+
+            <!-- Video Output Section -->
+            <div class="video-container" id="video-container">
+                <video id="video-output" controls></video>
+            </div>
+
+            <div id="video-info" class="video-info" style="display: none;"></div>
+
+            <div class="video-actions" id="video-actions" style="display: none;">
+                <button onclick="downloadVideo()">📥 Download</button>
+                <button onclick="shareVideo()">🔗 Copy Link</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global state
+        let currentVideoUrl = null;
+        let modelLoaded = false;
+
+        // Initialize app
+        window.addEventListener('load', async () => {
+            await checkServerHealth();
+            setupEventListeners();
+        });
+
+        function setupEventListeners() {
+            const promptInput = document.getElementById('prompt');
+            const charCount = document.getElementById('char-count');
+
+            promptInput.addEventListener('input', () => {
+                const length = promptInput.value.length;
+                charCount.textContent = length;
+                charCount.style.color = length > 900 ? '#d32f2f' : '#999';
+            });
+
+            promptInput.addEventListener('keydown', (e) => {
+                if (e.ctrlKey && e.key === 'Enter') {
+                    generateVideo();
+                }
+            });
+        }
+
+        async function checkServerHealth() {
+            try {
+                const response = await fetch('http://localhost:5000/health');
+                const data = await response.json();
+                
+                if (data.status === 'healthy') {
+                    modelLoaded = data.model_loaded;
+                    updateSystemInfo(data);
+                    
+                    if (!modelLoaded) {
+                        document.getElementById('init-section').style.display = 'block';
+                        document.getElementById('generate-btn').disabled = true;
+                    }
+                }
+            } catch (error) {
+                showStatus('⚠️ Cannot connect to server. Make sure backend_local.py is running on port 5000', 'error');
+                document.getElementById('system-info').innerHTML = '<div>❌ Server offline</div>';
+            }
+        }
+
+        function updateSystemInfo(data) {
+            const gpu = data.gpu_available ? '✅ GPU' : '⚠️ CPU';
+            const model = data.model_loaded ? '✅ Model Loaded' : '⏳ Model Not Loaded';
+            const device = data.device || 'unknown';
+            
+            document.getElementById('system-info').innerHTML = `
+                <div style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
+                    <span>${gpu}</span>
+                    <span>${model}</span>
+                    <span>Device: ${device}</span>
+                </div>
+            `;
+        }
+
+        async function initializeModel() {
+            const initBtn = event.target;
+            initBtn.disabled = true;
+            initBtn.textContent = '⏳ Loading Model...';
+            showStatus('🤖 Initializing model... This may take 2-5 minutes. Please wait...', 'info');
+
+            try {
+                const response = await fetch('http://localhost:5000/initialize', {
+                    method: 'POST'
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.status === 'success') {
+                    modelLoaded = true;
+                    document.getElementById('init-section').style.display = 'none';
+                    document.getElementById('generate-btn').disabled = false;
+                    showStatus('✅ Model loaded successfully! You can now generate videos.', 'success');
+                    await checkServerHealth();
+                } else {
+                    throw new Error(data.message || 'Failed to load model');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showStatus('❌ Failed to load model: ' + error.message, 'error');
+                initBtn.disabled = false;
+                initBtn.textContent = '🚀 Initialize Model';
+            }
+        }
+
+        function setPrompt(text) {
+            document.getElementById('prompt').value = text;
+            document.getElementById('prompt').dispatchEvent(new Event('input'));
+        }
+
+        function showStatus(message, type) {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = 'status ' + type;
+        }
+
+        async function generateVideo() {
+            const prompt = document.getElementById('prompt').value.trim();
+            
+            if (!prompt) {
+                showStatus('Please enter a prompt', 'error');
+                return;
+            }
+
+            if (prompt.length < 3) {
+                showStatus('Prompt must be at least 3 characters long', 'error');
+                return;
+            }
+
+            if (!modelLoaded) {
+                showStatus('Please initialize the model first', 'warning');
+                return;
+            }
+
+            // UI updates
+            const generateBtn = document.getElementById('generate-btn');
+            generateBtn.disabled = true;
+            generateBtn.textContent = '🎬 Generating...';
+            document.getElementById('loader').style.display = 'block';
+            document.getElementById('video-container').style.display = 'none';
+            document.getElementById('video-actions').style.display = 'none';
+            document.getElementById('video-info').style.display = 'none';
+            showStatus('🎨 Generating video... This will take 30-120 seconds depending on your hardware', 'info');
+
+            try {
+                const response = await fetch('http://localhost:5000/generate-video', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompt })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok || data.error) {
+                    throw new Error(data.error || 'Failed to generate video');
+                }
+
+                // Success
+                currentVideoUrl = data.video_url;
+                const videoOutput = document.getElementById('video-output');
+                
+                // Handle local file path
+                if (currentVideoUrl.startsWith('/download/')) {
+                    videoOutput.src = 'http://localhost:5000' + currentVideoUrl;
+                } else {
+                    videoOutput.src = currentVideoUrl;
+                }
+                
+                document.getElementById('video-container').style.display = 'block';
+                document.getElementById('video-actions').style.display = 'flex';
+                
+                // Show video info
+                const videoInfo = document.getElementById('video-info');
+                videoInfo.innerHTML = `
+                    <strong>Model:</strong> ${data.model_name || 'CogVideoX-2B'}<br>
+                    <strong>Device:</strong> ${data.device || 'unknown'}<br>
+                    <strong>Frames:</strong> ${data.num_frames || 49} (~6 seconds)<br>
+                    <strong>Prompt:</strong> ${data.prompt}<br>
+                    <strong>Generated:</strong> ${new Date(data.timestamp).toLocaleString()}
+                `;
+                videoInfo.style.display = 'block';
+                
+                showStatus('✅ Video generated successfully!', 'success');
+                videoOutput.play().catch(() => {});
+
+            } catch (error) {
+                console.error('Error:', error);
+                showStatus('❌ Error: ' + error.message, 'error');
+            } finally {
+                generateBtn.disabled = false;
+                generateBtn.textContent = '🎬 Generate Video';
+                document.getElementById('loader').style.display = 'none';
+            }
+        }
+
+        async function downloadVideo() {
+            if (!currentVideoUrl) return;
+
+            try {
+                showStatus('📥 Preparing download...', 'info');
+                
+                const videoUrl = currentVideoUrl.startsWith('/download/') 
+                    ? 'http://localhost:5000' + currentVideoUrl 
+                    : currentVideoUrl;
+                
+                const response = await fetch(videoUrl);
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `ai-video-local-${Date.now()}.mp4`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+                
+                showStatus('✅ Download started!', 'success');
+            } catch (error) {
+                console.error('Download error:', error);
+                showStatus('❌ Failed to download video', 'error');
+            }
+        }
+
+        function shareVideo() {
+            if (!currentVideoUrl) return;
+            
+            const videoUrl = currentVideoUrl.startsWith('/download/') 
+                ? 'http://localhost:5000' + currentVideoUrl 
+                : currentVideoUrl;
+            
+            navigator.clipboard.writeText(videoUrl).then(() => {
+                showStatus('🔗 Video URL copied to clipboard!', 'success');
+            }).catch(() => {
+                showStatus('❌ Failed to copy URL', 'error');
+            });
+        }
+    </script>
+</body>
+</html>

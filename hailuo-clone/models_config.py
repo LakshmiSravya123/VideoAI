@@ -5,14 +5,14 @@ Based on trending Hugging Face spaces and Hailuo-inspired features
 
 VIDEO_MODELS = {
     "cogvideox-5b": {
-        "name": "CogVideoX-5B (zai-org)",
-        "space_url": "zai-org/CogVideoX-5B-Space",
-        "description": "High-quality text-to-video generation (6 seconds, 720p) - Running on Zero GPU",
+        "name": "CogVideoX-5B (THUDM)",
+        "space_url": "THUDM/CogVideoX-5B-Space",
+        "description": "High-quality text-to-video generation (6 seconds, 720p)",
         "type": "text-to-video",
         "features": ["high_quality", "longer_videos"],
         "max_frames": 49,
         "resolution": (720, 480),
-        "api_name": "/generate",
+        "api_name": "/infer",
         "params": {
             "num_inference_steps": 50,
             "guidance_scale": 6.0,
@@ -20,13 +20,13 @@ VIDEO_MODELS = {
     },
     "cogvideox-2b": {
         "name": "CogVideoX-2B (Faster)",
-        "space_url": "THUDM/CogVideoX-2B",
+        "space_url": "THUDM/CogVideoX-2B-Space",
         "description": "Faster version of CogVideoX with good quality",
         "type": "text-to-video",
         "features": ["fast", "good_quality"],
         "max_frames": 49,
         "resolution": (720, 480),
-        "api_name": "/generate",
+        "api_name": "/infer",
         "params": {
             "num_inference_steps": 30,
             "guidance_scale": 6.0,
@@ -35,7 +35,7 @@ VIDEO_MODELS = {
     "hunyuan-video": {
         "name": "HunyuanVideo (Tencent)",
         "space_url": "tencent/HunyuanVideo",
-        "description": "State-of-the-art video generation by Tencent",
+        "description": "State-of-the-art video generation by Tencent (may be slow/unavailable)",
         "type": "text-to-video",
         "features": ["sota", "high_quality"],
         "max_frames": 129,

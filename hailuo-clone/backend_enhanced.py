@@ -203,10 +203,11 @@ def generate_video():
         # Generate video based on model type
         try:
             if model_id in ['cogvideox-5b', 'cogvideox-2b']:
-                # CogVideoX models - simple prompt input
-                logger.info(f"Calling CogVideoX with prompt: {enhanced_prompt[:100]}")
+                # CogVideoX models - prompt with seed and other params
+                logger.info(f"Calling CogVideoX {model_id} with prompt: {enhanced_prompt[:100]}")
                 result = client.predict(
-                    enhanced_prompt,
+                    prompt=enhanced_prompt,
+                    seed=0,  # Random seed
                     api_name=model_info['api_name']
                 )
             elif model_id == 'hunyuan-video':
@@ -225,7 +226,11 @@ def generate_video():
                 )
         except Exception as e:
             logger.error(f"Model API call failed: {str(e)}")
-            return jsonify({'error': f'Video generation failed: {str(e)}'}), 500
+            logger.error(f"This usually means:")
+            logger.error(f"  1. The Hugging Face Space is sleeping or unavailable")
+            logger.error(f"  2. The API has changed")
+            logger.error(f"  3. Try using 'Demo Mode' to test the UI")
+            return jsonify({'error': f'Video generation failed: {str(e)}. Try Demo Mode or a different model.'}), 500
         
         # Extract video path/URL from result
         video_path = result[0] if isinstance(result, list) else result

@@ -1,0 +1,11 @@
+# Requirements for Local Video Generation (backend_local.py)
+Flask==3.0.0
+Flask-CORS==4.0.0
+torch>=2.0.0
+diffusers>=0.30.0
+transformers>=4.44.0
+accelerate>=0.25.0
+sentencepiece>=0.1.99
+protobuf>=3.20.0
+imageio>=2.33.0
+imageio-ffmpeg>=0.4.9
