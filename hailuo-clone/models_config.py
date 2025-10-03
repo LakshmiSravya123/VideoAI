@@ -149,7 +149,7 @@ EXAMPLE_PROMPTS = {
 
 def get_model_info(model_id):
     """Get information about a specific model"""
-    return VIDEO_MODELS.get(model_id, VIDEO_MODELS["zeroscope"])
+    return VIDEO_MODELS.get(model_id, VIDEO_MODELS["cogvideox-5b"])
 
 def get_available_models():
     """Get list of available models"""
