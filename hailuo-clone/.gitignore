@@ -6,18 +6,9 @@ __pycache__/
 .Python
 env/
 venv/
-.venv/
+venv_*/
 ENV/
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
+.venv/
 var/
 wheels/
 *.egg-info/
@@ -40,3 +31,16 @@ Thumbs.db
 
 # Logs
 *.log
+app.log
+app_local.log
+
+# Generated videos
+generated_videos/
+*.mp4
+*.avi
+*.mov
+
+# Model cache
+models/
+.cache/
+huggingface/
